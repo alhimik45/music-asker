@@ -1,0 +1,14 @@
+
+{
+	"name": "music-asker",
+	"main": "index.html",
+	"window": {
+		"frame": false,
+		"toolbar": false,
+		"width": 640,
+		"height": 320,
+		"position": "mouse",
+		"min_width": 10,
+		"min_height": 10
+	}
+}

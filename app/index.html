@@ -1,0 +1,109 @@
+<html>
+<head>
+	<meta charset=utf-8 />
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="list.min.js"></script>
+	<script type="text/javascript" src="list.fuzzysearch.min.js"></script>
+	<script type="text/javascript">
+		var gui = require('nw.gui');
+		var MUSIC_PATH = "/home/userr/music/";
+		var win = gui.Window.get();
+		var fs = require('fs');
+		$(function () {
+			var list = new List('file-list', { 
+				valueNames: ['name'], 
+				plugins: [ ListFuzzySearch() ] 
+			});
+			fs.readdir("/home/userr/music",function (err, files) {
+				files.forEach(function (file) {
+					list.add({name: file});
+				});
+			});
+			$('#file-list').on('click', '.name', function() {
+				process.stdout.write(MUSIC_PATH + $(this).text()+"\n");
+				process.exit(0);
+			});
+			$("#search-field").keypress(function(e) {
+				if(e.which == 13){
+					var items_found = list.get().filter(function (el) { return el.matching(); });
+					if(items_found.length == 0) {
+						process.stdout.write($(this).val()+"\n");
+					}else {
+						process.stdout.write(MUSIC_PATH + items_found[0].values().name + "\n");
+					}
+					process.exit(0);
+				}
+			});
+			win.height += 2;
+			$("#search-field").focus();
+		});
+	</script>
+	<style type="text/css">
+		html {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		body {
+			font-family: Sans;
+			height: 320px;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+			background-color: #c1c48b;
+			font-size: 14px;
+			-webkit-app-region: drag;
+			border: 1px solid #81654f;
+		}
+		#search-field {
+			font-family: Sans;
+			font-size: 14px;
+			border: 1px solid #81654f;
+			background-color: #c1c48b;
+			width: 90%;
+		}
+		p,li {
+			margin: 0;
+			-webkit-user-select: none;
+			-webkit-app-region: no-drag;
+			white-space: nowrap ;
+		}
+		p:hover {
+			background-color: #81654f;
+			cursor: pointer;
+		}
+		.center{
+			text-align: center;
+		}
+		ul {
+			list-style-type: none;
+			margin-left: 5%;
+			padding: 0;
+			height: 85%;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+		::-webkit-scrollbar {
+			width: 10px;
+		}
+		::-webkit-scrollbar-track {
+			background:#c1c48b;
+			border: 1px solid #81654f;
+		}
+		::-webkit-scrollbar-thumb {
+			background:#81654f;
+			border: 1px solid #81654f;
+		}	
+	</style>
+</head>
+<body>
+	<div id="file-list">
+		<div class="center">
+			<input type="text" id="search-field" class="fuzzy-search" >
+		</div>
+		<ul class="list" id="file-list">
+			<li><p class="name"></p></li>
+		</ul>
+	</div>
+</body>
+</html>
