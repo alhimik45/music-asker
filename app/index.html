@@ -6,7 +6,13 @@
 	<script type="text/javascript" src="list.fuzzysearch.min.js"></script>
 	<script type="text/javascript">
 		var gui = require('nw.gui');
-		var MUSIC_PATH = "/home/userr/music/";
+		if(gui.App.argv.length != 2){
+			process.stdout.write("Incorrect number of arguments\n");
+			process.exit(1);
+		}
+		var node_type = gui.App.argv[1];
+		var path = gui.App.argv[0];
+		path = path.replace(/\/+$/, "") + "/";
 		var win = gui.Window.get();
 		var fs = require('fs');
 		$(function () {
@@ -14,13 +20,21 @@
 				valueNames: ['name'], 
 				plugins: [ ListFuzzySearch() ] 
 			});
-			fs.readdir("/home/userr/music",function (err, files) {
+			fs.readdir(path,function (err, files) {
 				files.forEach(function (file) {
-					list.add({name: file});
+					if(node_type == "dir"){
+						if(fs.lstatSync(path+file).isDirectory()){
+							list.add({name: file});
+						}
+					}else {
+						if(fs.lstatSync(path+file).isFile()){
+							list.add({name: file});
+						}
+					}
 				});
 			});
 			$('#file-list').on('click', '.name', function() {
-				process.stdout.write(MUSIC_PATH + $(this).text()+"\n");
+				process.stdout.write(path + $(this).text()+"\n");
 				process.exit(0);
 			});
 			$("#search-field").keypress(function(e) {
@@ -29,7 +43,7 @@
 					if(items_found.length == 0) {
 						process.stdout.write($(this).val()+"\n");
 					}else {
-						process.stdout.write(MUSIC_PATH + items_found[0].values().name + "\n");
+						process.stdout.write(path + items_found[0].values().name + "\n");
 					}
 					process.exit(0);
 				}
